@@ -173,7 +173,7 @@ class KeyGateApp:
         # status
         self.status_var = tk.StringVar(value="")
         self.status_label = tk.Label(self.card, textvariable=self.status_var,
-                                       fg=TEXT_DIM, bg=CARD, font=("Segoe UI", 8.5),
+                                       fg=TEXT_DIM, bg=CARD, font=("Segoe UI", 9 ),
                                        wraplength=card_w - 40, justify="center")
         self.status_label.place(x=20, y=188)
 
