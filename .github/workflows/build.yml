@@ -1,0 +1,40 @@
+name: Build TradutorPT.exe
+
+# Builda automaticamente toda vez que você sobe (push) mudanças na
+# pasta desktop/, ou quando você dispara manualmente em
+# Actions -> Build TradutorPT.exe -> Run workflow.
+on:
+  push:
+    paths:
+      - "desktop/**"
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        working-directory: desktop
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pyinstaller mss pytesseract pillow deep-translator pynput
+
+      - name: Gerar o .exe
+        working-directory: desktop
+        run: |
+          pyinstaller --onefile --noconsole --name TradutorPT launcher.py
+
+      - name: Disponibilizar o .exe pra download
+        uses: actions/upload-artifact@v4
+        with:
+          name: TradutorPT
+          path: desktop/dist/TradutorPT.exe
