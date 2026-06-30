@@ -30,7 +30,7 @@ from tkinter import font as tkfont
 import requests
 
 # Troque pela URL do seu servidor depois de subir no Render
-BASE_URL = "https://SEU-SERVIDOR-AQUI.onrender.com"
+BASE_URL = "https://tradutor-gamer-key.onrender.com"
 
 APP_NAME = "TradutorPT"
 SUPPORT_URL = "https://discord.gg/SEU-SERVIDOR-AQUI"
