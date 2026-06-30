@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradutor PT-BR — Pegar Key</title>
+<style>
+  :root{
+    --bg-0:#0b0e14;
+    --bg-1:#11151f;
+    --card:#141925;
+    --line:#222838;
+    --cyan:#3ee0e8;
+    --cyan-dim:#1d8e95;
+    --text:#e7ecf5;
+    --text-dim:#8a93a6;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Inter, system-ui, sans-serif;
+    background:
+      radial-gradient(800px 500px at 50% -10%, rgba(62,224,232,0.10), transparent 60%),
+      var(--bg-0);
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .wrap{
+    width:100%;
+    max-width:420px;
+    padding:24px;
+  }
+
+  .eyebrow{
+    text-align:center;
+    letter-spacing:.18em;
+    font-size:11px;
+    color:var(--cyan);
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+
+  h1{
+    text-align:center;
+    font-size:22px;
+    margin:0 0 6px;
+    font-weight:600;
+  }
+
+  .subtitle{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:13.5px;
+    margin:0 0 28px;
+    line-height:1.5;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:28px 26px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+
+  .key-box{
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    font-family:'Consolas', monospace;
+    font-size:16px;
+    letter-spacing:.04em;
+    text-align:center;
+    color:var(--cyan);
+    margin-bottom:16px;
+    min-height:22px;
+    word-break:break-all;
+    transition:border-color .15s ease;
+  }
+  .key-box.empty{ color:var(--text-dim); font-family:inherit; font-size:13.5px; }
+
+  button{
+    width:100%;
+    border:none;
+    border-radius:10px;
+    padding:13px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform .08s ease, filter .15s ease;
+  }
+  button:active{ transform:scale(0.98); }
+
+  .btn-main{
+    background:linear-gradient(180deg, var(--cyan), var(--cyan-dim));
+    color:#06181a;
+  }
+  .btn-main:hover{ filter:brightness(1.08); }
+  .btn-main:disabled{ opacity:.6; cursor:default; }
+
+  .btn-copy{
+    margin-top:10px;
+    background:transparent;
+    color:var(--text-dim);
+    border:1px solid var(--line);
+  }
+  .btn-copy:hover{ color:var(--text); border-color:var(--cyan-dim); }
+
+  .status{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--text-dim);
+    margin-top:14px;
+    min-height:16px;
+  }
+  .status.error{ color:#ff7575; }
+  .status.ok{ color:var(--cyan); }
+
+  .footer{
+    text-align:center;
+    margin-top:22px;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  .footer a{ color:var(--cyan-dim); text-decoration:none; }
+  .footer a:hover{ text-decoration:underline; }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="eyebrow">Tradutor PT-BR</div>
+    <h1>Pegue sua key</h1>
+    <p class="subtitle">Gere sua chave de acesso e cole na tela do<br>aplicativo pra liberar o tradutor.</p>
+
+    <div class="card">
+      <div id="keyBox" class="key-box empty">sua key vai aparecer aqui</div>
+      <button id="genBtn" class="btn-main">Gerar minha key</button>
+      <button id="copyBtn" class="btn-copy" style="display:none;">Copiar key</button>
+      <div id="status" class="status"></div>
+    </div>
+
+    <div class="footer">
+      Problemas? <a href="#" id="supportLink">fale com a gente</a>
+    </div>
+  </div>
+
+<script>
+  // TROQUE pela URL do seu servidor depois de subir no Render
+  // (ex: "https://tradutor-key-server.onrender.com")
+  const BASE_URL = "https://SEU-SERVIDOR-AQUI.onrender.com";
+
+  const genBtn = document.getElementById('genBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const keyBox = document.getElementById('keyBox');
+  const statusEl = document.getElementById('status');
+
+  let currentKey = null;
+
+  genBtn.addEventListener('click', async () => {
+    genBtn.disabled = true;
+    genBtn.textContent = "Gerando...";
+    statusEl.textContent = "";
+    statusEl.className = "status";
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/keys/generate`, { method: "POST" });
+      if (!res.ok) throw new Error("Falha ao gerar key");
+      const data = await res.json();
+
+      currentKey = data.key;
+      keyBox.textContent = currentKey;
+      keyBox.classList.remove('empty');
+      copyBtn.style.display = 'block';
+      statusEl.textContent = "Pronto! Cole essa key no app.";
+      statusEl.className = "status ok";
+    } catch (err) {
+      statusEl.textContent = "Não consegui gerar a key agora. Tenta de novo em alguns segundos.";
+      statusEl.className = "status error";
+    } finally {
+      genBtn.disabled = false;
+      genBtn.textContent = "Gerar minha key";
+    }
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!currentKey) return;
+    await navigator.clipboard.writeText(currentKey);
+    copyBtn.textContent = "Copiado!";
+    setTimeout(() => { copyBtn.textContent = "Copiar key"; }, 1500);
+  });
+</script>
+
+</body>
+</html>
