@@ -222,7 +222,7 @@ class KeyGateApp:
         ef_cv.place(x=rx, y=100)
         pill(ef_cv, 0, 0, cw, 40, r=14,
              fill="#0b0e1a", outline=LINE, width=1)
-        ef_cv.lower()   # manda pra trás da entry
+        self.key_entry.lift()   # garante que a entry fica por cima do canvas
  
         # row "Lembrar"
         base.create_text(rx+4, 158, text="Lembrar minha key",
