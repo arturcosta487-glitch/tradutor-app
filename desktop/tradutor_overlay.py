@@ -1031,6 +1031,7 @@ class ControlPanel:
         self.paused  = False
         self._text_before_pause = "..."
         self._region = dict(region) if region else {}
+        self._minimized = False
  
         self.win = tk.Toplevel(overlay.root)
         self.win.title("Tradutor de Jogos — Painel de Controle")
@@ -1040,10 +1041,13 @@ class ControlPanel:
         self.win.configure(bg=self.BG)
         self.win.overrideredirect(True)   # sem barra de título branca
  
-        W, H = 600, 430
+        self._W, self._H = 600, 430
+        self._W_mini, self._H_mini = 220, 44
         sw = self.win.winfo_screenwidth()
         sh = self.win.winfo_screenheight()
-        self.win.geometry(f"{W}x{H}+{(sw-W)//2}+{(sh-H)//2}")
+        self._full_x = (sw - self._W) // 2
+        self._full_y = (sh - self._H) // 2
+        self.win.geometry(f"{self._W}x{self._H}+{self._full_x}+{self._full_y}")
  
         self._drag_x = self._drag_y = 0
         self._round_window_corners()
@@ -1055,7 +1059,7 @@ class ControlPanel:
             pass
         self._setup_styles()
  
-        self._build(W, H)
+        self._build(self._W, self._H)
  
     # ------------------------------------------------------------------
     def _round_window_corners(self):
@@ -1106,6 +1110,14 @@ class ControlPanel:
         base.tag_bind("xbtn", "<Button-1>", lambda e: self.win.destroy())
         base.tag_bind("xbtn", "<Enter>",    lambda e: base.itemconfig(xid, fill=self.DANGER))
         base.tag_bind("xbtn", "<Leave>",    lambda e: base.itemconfig(xid, fill=self.TEXT_MUTED))
+ 
+        # — minimizar painel
+        mid = base.create_text(W-48, 22, text="—",
+                                fill=self.TEXT_MUTED, font=("Segoe UI", 11),
+                                tags="minbtn")
+        base.tag_bind("minbtn", "<Button-1>", lambda e: self._toggle_minimize())
+        base.tag_bind("minbtn", "<Enter>",    lambda e: base.itemconfig(mid, fill=self.ACCENT))
+        base.tag_bind("minbtn", "<Leave>",    lambda e: base.itemconfig(mid, fill=self.TEXT_MUTED))
  
         # ── SIDEBAR ──────────────────────────────────────────────────
         # ícone + título
@@ -1166,6 +1178,36 @@ class ControlPanel:
         nx = self.win.winfo_x() + e.x - self._drag_x
         ny = self.win.winfo_y() + e.y - self._drag_y
         self.win.geometry(f"+{nx}+{ny}")
+ 
+    def _toggle_minimize(self):
+        self._minimized = not self._minimized
+        if self._minimized:
+            # salva posição atual antes de colapsar
+            self._full_x = self.win.winfo_x()
+            self._full_y = self.win.winfo_y()
+            # colapsa pra uma barrinha no topo
+            self.win.geometry(
+                f"{self._W_mini}x{self._H_mini}+{self._full_x}+{self._full_y}"
+            )
+            # esconde o conteúdo
+            for page in self._pages.values():
+                page.place_forget()
+            for lbl in self._nav_labels.values():
+                lbl.place_forget()
+        else:
+            # restaura tamanho original
+            self.win.geometry(
+                f"{self._W}x{self._H}+{self._full_x}+{self._full_y}"
+            )
+            # reexibe conteúdo
+            cx, cy, cw, ch = 190, 16, self._W - 202, self._H - 32
+            nav_y = 90
+            for key, lbl in self._nav_labels.items():
+                lbl.place(x=12, y=nav_y, width=160)
+                nav_y += 44
+            for page in self._pages.values():
+                page.place(x=cx, y=cy)
+            self._show_page(self._cur_page)
  
     # ------------------------------------------------------------------
     def _card(self, parent):
@@ -1627,3 +1669,4 @@ def main():
  
 if __name__ == "__main__":
     main()
+ 
