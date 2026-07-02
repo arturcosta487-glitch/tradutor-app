@@ -1103,26 +1103,16 @@ class ControlPanel:
         base.bind("<Button-1>",  self._drag_start)
         base.bind("<B1-Motion>", self._drag_move)
 
-        # ✕ fechar painel  — widget real, fica por cima das páginas
-        btn_close = tk.Label(self.win, text="✕", bg=self.BG,
-                             fg=self.TEXT_MUTED, font=("Segoe UI", 12, "bold"),
-                             cursor="hand2")
-        btn_close.place(x=W-28, y=10)
-        btn_close.lift()
-        btn_close.bind("<Button-1>", lambda e: self.win.destroy())
-        btn_close.bind("<Enter>",    lambda e: btn_close.config(fg=self.DANGER))
-        btn_close.bind("<Leave>",    lambda e: btn_close.config(fg=self.TEXT_MUTED))
-
-        # — minimizar painel — widget real, fica por cima das páginas
-        btn_min = tk.Label(self.win, text="—", bg=self.BG,
-                           fg=self.TEXT_MUTED, font=("Segoe UI", 12, "bold"),
-                           cursor="hand2")
-        btn_min.place(x=W-52, y=10)
-        btn_min.lift()
-        btn_min.bind("<Button-1>", lambda e: self._toggle_minimize())
-        btn_min.bind("<Enter>",    lambda e: btn_min.config(fg=self.ACCENT))
-        btn_min.bind("<Leave>",    lambda e: btn_min.config(fg=self.TEXT_MUTED))
-        self._btn_min = btn_min
+        # 🏠 botão home — minimiza/restaura o painel
+        btn_home = tk.Label(self.win, text="🏠", bg=self.BG,
+                            fg=self.TEXT_MAIN, font=("Segoe UI", 13),
+                            cursor="hand2")
+        btn_home.place(x=W-36, y=8)
+        btn_home.lift()
+        btn_home.bind("<Button-1>", lambda e: self._toggle_minimize())
+        btn_home.bind("<Enter>",    lambda e: btn_home.config(fg=self.ACCENT))
+        btn_home.bind("<Leave>",    lambda e: btn_home.config(fg=self.TEXT_MAIN))
+        self._btn_home = btn_home
 
         # ── SIDEBAR ──────────────────────────────────────────────────
         # ícone + título
